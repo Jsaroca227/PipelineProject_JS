@@ -1,10 +1,9 @@
-##STEP 1: Preparing the Paired-end reads from SRA
+#STEP 1: Preparing the Paired-End Reads from SRA
 
 1. Set up the project directory:
-- In the terminal -
 - git clone <GitHub_Repo_link>
 - cd **name of the repository made**
-- git init; this will initliaze Git repo
+- git init
 
 2. Retrieve the SRA files from NCBI:
 - Go to the NCBI Data Access, and on the left of the search bar select 'SRA'
@@ -25,4 +24,4 @@ fasterq-dump <SRA_file_2>
 - This will list the content in the directory
 - If done correctly, there will be 2 output files per SRA
 
-SRA_1 SRA_2
+<SRA>_1.fastq <SRA>_2.fastq

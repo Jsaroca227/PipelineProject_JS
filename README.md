@@ -1,4 +1,4 @@
-#STEP 1: Preparing the Paired-End Reads from SRA
+# STEP 1: Preparing the Paired-End Reads from SRA
 
 1. Set up the project directory:
 - git clone <GitHub_Repo_link>

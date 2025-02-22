@@ -1,12 +1,11 @@
 # STEP 1: Preparing the Paired-End Reads from SRA
 
-1. Set up the project directory:
+1. Clone the repository:
 - git clone <GitHub_Repo_link>
 - cd **name of the repository made**
-- git init
 
 2. Retrieve the SRA files from NCBI:
-- Go to the NCBI Data Access, and on the left of the search bar select 'SRA'
+- In the NCBI Data Access, and on the left of the search bar select 'SRA'
 - Copy and paste the given SRA accession number in the search bar and enter
 - Click on the SRR number under 'Runs'
 - On the next screen, select 'Data access' tab
@@ -24,4 +23,12 @@ fasterq-dump <SRA_file_2>
 - This will list the content in the directory
 - If done correctly, there will be 2 output files per SRA
 
-<SRA>_1.fastq <SRA>_2.fastq
+<SRA_1>_1.fastq <SRA_1>_2.fastq <SRA_2>_1.fastq <SRA_2>_2.fastq
+
+# STEP 2: Install all necessary dependencies
+
+- SPAdes: sequence assembler
+- Bowtie2: genome mapper
+- BLAST: aligns biological sequences
+
+# STEP 3: 

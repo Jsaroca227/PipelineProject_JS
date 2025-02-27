@@ -141,7 +141,6 @@ import argparse
 parser = argparse.ArgumentParser(description="Find longest contig and run BLAST")
 parser.add_argument("--contigs", required=True, help="Path to the contigs FASTA file")
 parser.add_argument("--output_dir", required=True, help="Directory to save output files")
-parser.add_argument("--blast_db", required=True, help="BLAST database to use")
 parser.add_argument("--log", default="PipelineProject.log", help="Log file path")
 
 args = parser.parse_args()
@@ -169,7 +168,7 @@ if os.path.exists(args.contigs):
         with open(longest_contig_file, "w") as output:
             SeqIO.write(longest_contig, output, "fasta")
 #downloading the refseq database
-download_db = "datasets download virus genome taxon Betaherpesvirinae --refseq --include genome"
+download_db = "datasets download virus genome taxon Betaherpesvirinae --include genome"
 os.system(download_db)
 
 #unzip the ncbi dataset
@@ -184,13 +183,15 @@ db = "makeblastdb -in Betaherpesvirinae.fna -out Betaherpesvirinae -title Betahe
 os.system(db)
 
 #prepares the BLAST command to run with the longest contig as the query
-blast_command = f"blastn -query {longest_contig_file} -db {args.blast_db} -outfmt '6 sacc pident length qstart qend sstart send bitscore evalue stitle' -max_target_seqs 10 -max_hsps 1 -out {blast_output}"
-#executes the BLAST command and captures the exit status
-blast_exit = os.system(blast_command)
+blast_command = 'blastn -query problem5_contig_file.fasta -db Betaherpesvirinae -out myresults.tsv -outfmt "6 sacc pident length qstart qend sstart send bitscore evalue stitle" -max_target_seqs 10 -max_hsps 1'
+#executes the BLAST command
+os.system(blast_command)
 
+with open('blast.tsv', 'r') as f:
+    results =f.readlines()
+    f.close()
 #open and append results into the log file
-with open(args.log, "a") as log:
-    #adds the column headers to the log file
-    log.write('sacc\tpident\tlength\tqstart\tqend\tsstart\tsend\tbitscore\tevalue\tstitle\n')
-#appends the BLAST output to the log file
-os.system(f"head -n 10 {blast_output} >> {args.log}")
+with open(args.log, "a") as log: 
+    log.write('sacc\tpident\tlength\tqstart\tqend\tsstart\tsend\tbitscore\tevalue\tstitle\n') #adds the column headers to the log file
+    for i in results:
+        log.write(i)

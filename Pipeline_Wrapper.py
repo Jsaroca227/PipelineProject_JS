@@ -146,7 +146,7 @@ db = "makeblastdb -in Betaherpesvirinae.fna -out Betaherpesvirinae -title Betahe
 os.system(db)
 
 #prepares the BLAST command to run with the longest contig as the query
-blast_command = 'blastn -query {longest_contig_file} -db Betaherpesvirinae -out {blast_output} -outfmt "6 sacc pident length qstart qend sstart send bitscore evalue stitle" -max_target_seqs 10 -max_hsps 1'
+blast_command = 'blastn -query longest_contig.fasta -db Betaherpesvirinae -out blast.tsv -outfmt "6 sacc pident length qstart qend sstart send bitscore evalue stitle" -max_target_seqs 10 -max_hsps 1'
 #executes the BLAST command
 os.system(blast_command)
 

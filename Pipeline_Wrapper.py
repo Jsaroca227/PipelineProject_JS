@@ -1,23 +1,8 @@
 #######question 2########
-
 import os
-import argparse
+from Bio import SeqIO
 
-#parse arguments, it will ask for these to be answered in the terminal prior to running the script
-parser = argparse.ArgumentParser(description="Wrapper script for HCMV pipeline.")
-parser.add_argument("--first_name", required=True)
-parser.add_argument("--last_name", required=True)
-parser.add_argument("--sra1_r1", required=True)
-parser.add_argument("--sra1_r2", required=True)
-parser.add_argument("--sra2_r1", required=True)
-parser.add_argument("--sra2_r2", required=True)
-args = parser.parse_args()
-
-#sets up the project directory
-project_dir = f"PipelineProject_{args.first_name}_{args.last_name}"
-os.makedirs(project_dir, exist_ok=True)
-os.chdir(project_dir)
-log_file = "PipelineProject_Junelle_Saroca/PipelineProject.log"
+log_file = "PipelineProject.log"
 
 #downloads the dataset
 download_db = "datasets download genome accession GCF_000845245.1 --include gff3,rna,cds,protein,genome,seq-report"
@@ -33,17 +18,17 @@ bowtie2_command = f"bowtie2-build {genome_fasta} HCMV_index"
 os.system(bowtie2_command)
 
 #calculates the paired end reads before filtering
-sra1_read_pairs = int(os.popen(f'wc -l < {args.sra1_r1}').read().strip())
+sra1_read_pairs = int(os.popen(f'wc -l < sampleSRR5660030_1.fastq').read().strip())
 before_sra1 = int(sra1_read_pairs) // 4
-sra2_read_pairs = int(os.popen(f'wc -l < {args.sra2_r1}').read().strip())
+sra2_read_pairs = int(os.popen(f'wc -l < sampleSRR5660033_1.fastq').read().strip())
 before_sra2 = int(sra2_read_pairs) // 4
 
 
 #runs bowtie2 mapping for each SRA with its respective paired end reads
-bowtie2_1 = f"bowtie2 --quiet -x HCMV_index -1 {args.sra1_r1} -2 {args.sra1_r2} -S mapped_r1.sam"
+bowtie2_1 = f"bowtie2 --quiet -x HCMV_index -1 sampleSRR5660030_1.fastq -2 sampleSRR5660030_2.fastq -S mapped_r1.sam"
 os.system(bowtie2_1)
 
-bowtie2_2 = f"bowtie2 --quiet -x HCMV_index -1 {args.sra2_r1} -2 {args.sra2_r2} -S mapped_r2.sam"
+bowtie2_2 = f"bowtie2 --quiet -x HCMV_index -1 sampleSRR5660033_1.fastq -2 sampleSRR5660033_2.fastq -S mapped_r2.sam"
 os.system(bowtie2_2)
 
 
@@ -59,32 +44,12 @@ with open (log_file, 'a') as log:
 
 #########question 3##########
 import os
-import argparse
-
-#parse arguments to run the file
-parser = argparse.ArgumentParser(description="Run SPAdes assembly with Bowtie2 output.")
-parser.add_argument("--sra1_r1", required=True, help="Path to first SRA file (R1).")
-parser.add_argument("--sra1_r2", required=True, help="Path to first SRA file (R2).")
-parser.add_argument("--sra2_r1", required=True, help="Path to second SRA file (R1).")
-parser.add_argument("--sra2_r2", required=True, help="Path to second SRA file (R2).")
-parser.add_argument("-k", type=int, default=99, help="K-mer size for SPAdes assembly (default: 99).")
-parser.add_argument("-t", type=int, default=2, help="Number of threads for SPAdes (default: 2).")
-parser.add_argument("-o", default="combined_assembly/", help="Output directory for SPAdes assembly (default: combined_assembly/).")
-
-args = parser.parse_args()
-
-#ensures the output directory exits
-os.makedirs(args.o, exist_ok=True)
 
 #the log file that will hold the answer
 log_file = "PipelineProject.log"
 
 #create the spades string
-spades_command = (
-    f"spades.py -k {args.k} -t {args.t} --only-assembler "
-    f"-1 {args.sra1_r1} -2 {args.sra1_r2} "
-    f"-1 {args.sra2_r1} -2 {args.sra2_r2} "
-    f"-o {args.o}"
+spades_command = ("spades.py -k 99 -t 2 --only-assembler -1 sampleSRR5660030_1.fastq -2 sampleSRR5660030_2.fastq -1 sampleSRR5660033_1.fastq -2 sampleSRR5660033_2.fastq -o combined_assembly/"
 )
 
 #run the spades assembly 
@@ -95,20 +60,22 @@ with open(log_file, "a") as log:
     log.write(f"SPAdes assembly command: {spades_command}\n")
 
 ##########question 4#############
-#parse arguments
-parser = argparse.ArgumentParser(description="Count contigs >1000 bp and total bp in assembly.")
-parser.add_argument("--contigs", required=True, help="Path to the contigs FASTA file")
-parser.add_argument("--log", required=True, help="Path to the log file")
+import os
 
-args = parser.parse_args()
+#gets the directory to where the file is located
+script_dir = os.path.dirname(os.path.abspath(__file__))
 
-#initalize varaibles that will hold the count for contigs and total base pairs
+#this constructs the relative path to the contigs.fasta file
+contig_file = os.path.join(script_dir, "combined_assembly", "contigs.fasta")
+
+#initalize variables that will hold the count for contigs and total base pairs
+log_file = "PipelineProject.log"
 num_contigs = 0
 total_bp = 0
 sequence = ""
 
 #opens the contig file and processes each line
-with open(args.contigs, "r") as file:
+with open(contig_file, "r") as file:
     for line in file:
         line = line.strip()
         #if the line is a header, it will start with ('>')
@@ -128,37 +95,33 @@ if len(sequence) > 1000:
     total_bp += len(sequence)
 
 #use os.system to append the results of amount of contigs and bp in the assembly to the log file
-os.system(f'echo "There are {num_contigs} contigs > 1000 bp in the assembly." >> {args.log}')
-os.system(f'echo "There are {total_bp} bp in the assembly.\n" >> {args.log}')
-
+with open(log_file, "a") as log:
+    log.write(f"There are {num_contigs} contigs > 1000 bp in the assembly.\n")
+    log.write(f"There are {total_bp} bp in the assembly.\n")
 
 ###########question 5###############
 from Bio import SeqIO
 import os
-import argparse
 
-#parse arguments
-parser = argparse.ArgumentParser(description="Find longest contig and run BLAST")
-parser.add_argument("--contigs", required=True, help="Path to the contigs FASTA file")
-parser.add_argument("--output_dir", required=True, help="Directory to save output files")
-parser.add_argument("--log", default="PipelineProject.log", help="Log file path")
-
-args = parser.parse_args()
-#ensures that the directory exists
-os.makedirs(args.output_dir, exist_ok=True)
-
+log_file = 'PipelineProject.log'
 #defines the output path files
-longest_contig_file = os.path.join(args.output_dir, "longest_contig.fasta")
-blast_output = os.path.join(args.output_dir, "blast.tsv")
+longest_contig_file = "longest_contig.fasta"
+blast_output = "blast.tsv"
+
+#gets the directory to where the file is located
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+#this constructs the relative path to the contigs.fasta file
+contig_file = os.path.join(script_dir, "combined_assembly", "contigs.fasta")
 
 #intialize new variable to hold the  longest contig
 longest_contig = None
 #intialize new variable for the maximum length
 max_length = 0
 #checks if there are existing contigs in the file
-if os.path.exists(args.contigs):
+if os.path.exists(contig_file):
     #loops throught the contig records in the input file
-    for record in SeqIO.parse(args.contigs, "fasta"):
+    for record in SeqIO.parse(contig_file, "fasta"):
         #if the contig is longer than the previous longest contig, it will be updated
         if len(record.seq) > max_length:
             max_length = len(record.seq)
@@ -191,7 +154,7 @@ with open('blast.tsv', 'r') as f:
     results =f.readlines()
     f.close()
 #open and append results into the log file
-with open(args.log, "a") as log: 
+with open(log_file, "a") as log: 
     log.write('sacc\tpident\tlength\tqstart\tqend\tsstart\tsend\tbitscore\tevalue\tstitle\n') #adds the column headers to the log file
     for i in results:
         log.write(i)

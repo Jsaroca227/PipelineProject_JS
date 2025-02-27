@@ -1,3 +1,6 @@
+Background:
+- The purpose of this project is to automate through bioinformatic workflows by the integration of multiple software tools into a creation of a Python Wrapper script.
+
 # STEP 1: Preparing the Paired-End Reads from SRA
 
 1. Clone the repository:
@@ -26,9 +29,13 @@ fasterq-dump <SRA_file_2>
 <SRA_1>_1.fastq <SRA_1>_2.fastq <SRA_2>_1.fastq <SRA_2>_2.fastq
 
 # STEP 2: Install all necessary dependencies
+- os
+- SeqIO
+- SPAdes
+- bowtie2
+- BLAST+
+- NCBI Datasets
 
-- SPAdes: sequence assembler
-- Bowtie2: genome mapper
-- BLAST: aligns biological sequences
-
-# STEP 3: 
+# STEP 3: Run the Pipeline_Wrapper
+- To run the wrapper, ensure that you are in the correct directory, clone "PipelineProject_Junelle_Saroca"; https://github.com/Jsaroca227/PipelineProject_Junelle_Saroca.git
+- Ensure that the right, correct inputs are provided into the terminal for each command in order to run the script properly

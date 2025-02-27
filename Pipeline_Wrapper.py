@@ -17,7 +17,7 @@ args = parser.parse_args()
 project_dir = f"PipelineProject_{args.first_name}_{args.last_name}"
 os.makedirs(project_dir, exist_ok=True)
 os.chdir(project_dir)
-log_file = "/home/2025/jsaroca/PipelineProject_Junelle_Saroca/PipelineProject.log"
+log_file = "PipelineProject_Junelle_Saroca/PipelineProject.log"
 
 #downloads the dataset
 download_db = "datasets download genome accession GCF_000845245.1 --include gff3,rna,cds,protein,genome,seq-report"

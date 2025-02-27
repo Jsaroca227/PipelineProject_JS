@@ -39,3 +39,5 @@ fasterq-dump <SRA_file_2>
 # STEP 3: Run the Pipeline_Wrapper
 - To run the wrapper, ensure that you are in the correct directory, clone "PipelineProject_Junelle_Saroca"; https://github.com/Jsaroca227/PipelineProject_Junelle_Saroca.git
 - Ensure that the right, correct inputs are provided into the terminal for each command in order to run the script properly
+- When it asks to override the files in the dataset, please select "y" for everything but the README.md file select "n".
+
